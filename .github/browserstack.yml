@@ -1,0 +1,25 @@
+name: 'Notify BrowserStack builds in Slack'
+on:
+  workflow_dispatch
+jobs:
+  browserstack_slack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: 8398a7/action-slack@v3
+        if: always()
+        with:
+          status: ${{ github.event.status }}
+          custom_payload: |
+          {
+            username: 'action-slack',
+            icon_emoji: ':octocat:',
+            attachments: [{
+              color: '${{ github.event.status }}' === 'success' ? 'good' : '${{ github.event.status }}' === 'failure' ? 'danger' : 'warning',
+              text: `${{ github.event.text }}`,
+            }]
+          }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
